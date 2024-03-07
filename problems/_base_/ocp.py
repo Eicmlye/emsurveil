@@ -7,9 +7,10 @@ class BaseOCP(ea.Problem):
 
     - name (str): name of the problem.
 
-    - M (int): dimension of target, indicating how many targets are to be optimized. 
+    - M (int):  indicating how many targets are to be optimized. 
 
-    - maxormins (np.ndarray): 1 indicating maximization while -1 indicating minimization. 
+    - maxormins (np.ndarray): 1 indicating maximization while -1
+                              indicating minimization. 
 
     - Dim (int): dimension of decision variable.
 
@@ -20,9 +21,11 @@ class BaseOCP(ea.Problem):
 
     - ub (np.ndarray): upper bound of decision variable.
 
-    - lbin (np.ndarray): 0 means a open half-interval at lower bound while 1 means a closed one.
+    - lbin (np.ndarray):  0 means a open half-interval at lower
+                          bound while 1 means a closed one.
 
-    - ubin (np.ndarray): 0 means a open half-interval at upper bound while 1 means a closed one.
+    - ubin (np.ndarray):  0 means a open half-interval at upper
+                          bound while 1 means a closed one.
   """
 
   def __init__(
@@ -37,7 +40,10 @@ class BaseOCP(ea.Problem):
     lbin: np.ndarray,
     ubin: np.ndarray,
   ):
-    assert maxormins.ndim == M
+    assert maxormins.shape[0] == M
+    assert varTypes.shape[0] == Dim
+    assert lb.shape[0] == ub.shape[0] == Dim
+    assert lbin.shape[0] == ubin.shape[0] == Dim
     super().__init__(
       name=name,
       M=M,
