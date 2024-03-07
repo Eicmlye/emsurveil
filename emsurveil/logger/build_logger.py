@@ -9,10 +9,10 @@ import time
 STANDARD_LOG = "[%(asctime)s][%(levelname)s] IN %(pathname)s, Line %(lineno)d: %(message)s"
 
 def build_logger(
-  dir_name,
-  level=logging.DEBUG,
-  file_name=time.strftime("%Y%m%d%H%M%S", time.localtime()) + ".log",
-  format=STANDARD_LOG,
+  dir_name: str,
+  level: int=logging.DEBUG,
+  file_name: str=time.strftime("%Y%m%d%H%M%S", time.localtime()) + ".log",
+  format: str=STANDARD_LOG,
 ):
   logger = logging.getLogger()
   logger.setLevel(level)
