@@ -10,3 +10,6 @@ This repository is a Python implementation of *Camera Placement Plan Evaluation 
 cd emsurveil/ # change to project directory
 pip install -e . # install the project in editable mode
 ```
+
+## Usage
+
