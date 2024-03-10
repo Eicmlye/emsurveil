@@ -1,9 +1,5 @@
-from .vis_utils import (
-  normalize_vector,
-  squential_space_to_cartesian,
-)
+from .vis_mat import VisMat
 
 __all__ = [
-  "normalize_vector",
-  "squential_space_to_cartesian",
+  "VisMat",
 ]

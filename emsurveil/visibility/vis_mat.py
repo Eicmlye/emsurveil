@@ -2,7 +2,7 @@ import math
 import numpy as np
 from tqdm import tqdm
 
-from emsurveil.visibility import (
+from .vis_utils import (
   normalize_vector,
   squential_space_to_cartesian,
 )
@@ -16,15 +16,16 @@ class VisMat:
     - occupacy (list[int]): 1 indicating a occupied voxel while 0 means an
         empty one.
 
-    - cam_direction (list[list[float, float]]): the direction of cams in
-        radians.
+    - cam_direction (list[list[float]]): the [span, tilt] direction of
+        cams in radians.
 
-    - cam_dof (list[list[float, float]]): the DoFs of cameras in meters.
+    - cam_dof (list[list[float]]): the [near, far] DoFs of cameras in
+        meters.
 
-    - cam_horizontal_angle (list[float]): the horizontal fov angles of
+    - cam_horizontal_angle (list[float]): the horizontal FoV angles of
         cameras in radians.
 
-    - cam_vertical_angle (list[float]): the vertical fov angles of cameras
+    - cam_vertical_angle (list[float]): the vertical FoV angles of cameras
         in radians.
 
     - voxel_len (float): length of sides of voxels in meters.
@@ -40,8 +41,8 @@ class VisMat:
     self,
     shape: list[int],
     occupacy: list[int],
-    cam_direction: list[list[float, float]],
-    cam_dof: list[list[float, float]],
+    cam_direction: list[list[float]],
+    cam_dof: list[list[float]],
     cam_horizontal_angle: list[float],
     cam_vertical_angle: list[float],
     voxel_len: float,
@@ -55,15 +56,15 @@ class VisMat:
       cam_horizontal_angle,
       cam_vertical_angle,
       voxel_len,
-      sample_step,
+      sample_step=sample_step,
     )
 
   def _compute_vis(
     self,
     shape: list[int],
     occupacy: list[int],
-    cam_direction: list[list[float, float]],
-    cam_dof: list[float],
+    cam_direction: list[list[float]],
+    cam_dof: list[list[float]],
     cam_horizontal_angle: list[float],
     cam_vertical_angle: list[float],
     voxel_len: float,
@@ -81,9 +82,9 @@ class VisMat:
       - occupacy (list[int]): 1 indicating a ocupied voxel while 0 means
           an empty one.
 
-      - cam_direction (list[list[float, float]]): the direction of cams.
+      - cam_direction (list[list[float]]): the direction of cams.
 
-      - cam_dof (list[list[float, float]]): the DoFs of cameras in meters.
+      - cam_dof (list[list[float]]): the DoFs of cameras in meters.
 
       - cam_horizontal_angle (list[float]): the horizontal fov angles of
           cameras.

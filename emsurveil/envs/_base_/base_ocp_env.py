@@ -17,7 +17,7 @@ class BaseOCPEnv:
     if cam_candidates.ndim > 1:
       raise ValueError("cam_candidates should be a 1D array. ")
     if targets.ndim > 1:
-      raise ValueError("preset_target should be a 1D array. ")
+      raise ValueError("targets should be a 1D array. ")
     if cam_candidates.shape[0] != targets.shape[0]:
       raise ValueError(
         "Got different numbers of voxel in cam_candidates "
