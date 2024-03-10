@@ -12,7 +12,10 @@ setup(
     license="MIT Licence",
 
     python_requires=">=3.10, <3.11",
-    install_requires=["geatpy==2.7"],
+    install_requires=[
+      "geatpy==2.7",
+      "tqdm>=4.66.2",
+    ],
     packages=find_packages(),
 
     platforms="any",

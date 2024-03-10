@@ -2,6 +2,7 @@ import math
 import numpy as np
 from tqdm import tqdm
 
+from camera import Camera
 from .vis_utils import (
   normalize_vector,
   squential_space_to_cartesian,
@@ -15,58 +16,67 @@ class VisMat:
 
     - occupacy (list[int]): 1 indicating a occupied voxel while 0 means an
         empty one.
-
-    - cam_direction (list[list[float]]): the [span, tilt] direction of
-        cams in radians.
-
-    - cam_dof (list[list[float]]): the [near, far] DoFs of cameras in
-        meters.
-
-    - cam_horizontal_angle (list[float]): the horizontal FoV angles of
-        cameras in radians.
-
-    - cam_vertical_angle (list[float]): the vertical FoV angles of cameras
-        in radians.
+        
+    - camera (Camera): camera settings.
 
     - voxel_len (float): length of sides of voxels in meters.
 
     - sample_step (float): length of a sample step in voxels.
 
+    - targets (list[int]): positions of target points. Default value is
+        `None`, which means all points are targets. This input influences
+        the computation of `mask`.
+
   # Attributes:
 
     - value (np.ndarray): a matrix of dimension num_voxel^2.
+
+    - mask (np.ndarray): a target mask that ignores cam-tar pairs when tar
+        is not a concerning target point.
+
+    - masked_value (np.ndarray): masked value, literally.
   """
 
   def __init__(
     self,
     shape: list[int],
     occupacy: list[int],
-    cam_direction: list[list[float]],
-    cam_dof: list[list[float]],
-    cam_horizontal_angle: list[float],
-    cam_vertical_angle: list[float],
+    camera: Camera,
     voxel_len: float,
     sample_step: float=0.2,
+    targets: list[int]=None,
   ):
-    self.value = self._compute_vis(
+    num_voxel = shape[0] * shape[1] * shape[2]
+    self.__value = self._compute_vis(
       shape,
       occupacy,
-      cam_direction,
-      cam_dof,
-      cam_horizontal_angle,
-      cam_vertical_angle,
+      camera,
       voxel_len,
       sample_step=sample_step,
     )
+    self.__mask = np.array(
+      [[targets[i]] * num_voxel for i in range(num_voxel)]
+    ) if targets is not None else np.ones([num_voxel, num_voxel])
+
+
+  @property
+  def value(self):
+    return self.__value
+  
+  @property
+  def mask(self):
+    return self.__mask
+  
+  @property
+  def masked_value(self):
+    return np.multiply(self.value, self.mask)
+  
 
   def _compute_vis(
     self,
     shape: list[int],
     occupacy: list[int],
-    cam_direction: list[list[float]],
-    cam_dof: list[list[float]],
-    cam_horizontal_angle: list[float],
-    cam_vertical_angle: list[float],
+    camera: Camera,
     voxel_len: float,
     sample_step: float=0.2,
   ):
@@ -82,15 +92,7 @@ class VisMat:
       - occupacy (list[int]): 1 indicating a ocupied voxel while 0 means
           an empty one.
 
-      - cam_direction (list[list[float]]): the direction of cams.
-
-      - cam_dof (list[list[float]]): the DoFs of cameras in meters.
-
-      - cam_horizontal_angle (list[float]): the horizontal fov angles of
-          cameras.
-
-      - cam_vertical_angle (list[float]): the vertical fov angles of
-          cameras.
+      - camera (Camera): camera settings.
 
       - voxel_len (float): length of sides of voxels in meters.
 
@@ -110,7 +112,7 @@ class VisMat:
       ascii=True,
       desc="Camera pos checking",
     ):
-      if cam_dof[cam][1] == 0:
+      if camera.dof[cam][1] == 0:
         for tar in tqdm(
           range(num_voxel),
           ascii=True,
@@ -132,10 +134,10 @@ class VisMat:
         if (
           not self._check_angle(
             diffs,
-            cam_direction[cam],
-            cam_horizontal_angle[cam],
-            cam_vertical_angle[cam],
-          ) or not self._check_distance(diffs, voxel_len, cam_dof[cam])
+            camera.directions[cam],
+            camera.horizontal_angles[cam],
+            camera.vertical_angles[cam],
+          ) or not self._check_distance(diffs, voxel_len, camera.dof[cam])
         ):
           vis[tar][cam] = 0
           continue
@@ -158,7 +160,6 @@ class VisMat:
     
     print("Visibility matrix successfully built. ")
 
-
   def _compute_aov_single(self, diffs: list[int]):
     """
     Compute angle of view of a single pair of camera and target in
@@ -180,7 +181,7 @@ class VisMat:
   def _check_angle(
     self,
     diffs: np.ndarray,
-    single_cam_direction: list[float],
+    single_cam_directions: list[float],
     single_cam_horizontal_angle: float,
     single_cam_vertical_angle: float,
   ):
@@ -190,14 +191,14 @@ class VisMat:
     
     angle_of_view = self._compute_aov_single(diffs)
 
-    diff_horizontal = angle_of_view[0] - single_cam_direction[0]
+    diff_horizontal = angle_of_view[0] - single_cam_directions[0]
     if (
       diff_horizontal < -single_cam_horizontal_angle / 2
       or diff_horizontal > single_cam_horizontal_angle / 2
     ):
       return False
     
-    diff_vertical = angle_of_view[1] - single_cam_direction[1]
+    diff_vertical = angle_of_view[1] - single_cam_directions[1]
     if (
       diff_vertical < -single_cam_vertical_angle / 2
       or diff_vertical > single_cam_vertical_angle / 2
