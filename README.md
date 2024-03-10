@@ -30,7 +30,7 @@ This directory mainly builds geatpy optimization problems.
 In this package, `[width, height, depth]` corresponds to `[y, z, x]` coordinates of the space. The following sheet lists all the necessary arguments to start a OCP problem:
 
 | Categories | Arguments | Definitions |
-| --- | --- | --- |
+| :---: | :---: | --- |
 | `Camera` | `directions` | `[span, tilt]` angles of cameras, both of which taking `x` axis as $0$ rad.  |
 | `Camera` | `clip_shape` | `[width, height]` of clip sensors in cameras |
 | `Camera` | `focal_len` | focal lengths of cameras |
@@ -41,3 +41,4 @@ In this package, `[width, height, depth]` corresponds to `[y, z, x]` coordinates
 | `Environment` | `occupacy` | whether a voxel is occupied as an obstacle in space |
 | `Environment` | `voxel_len` | the actual length of voxel sides |
 | `Environment` | `target` | whether a voxel is considered as a target point |
+| `User` | `sample_step` | sample step length when computing visibility matrix |

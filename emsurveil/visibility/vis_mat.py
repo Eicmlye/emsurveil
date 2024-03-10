@@ -1,3 +1,4 @@
+import logging
 import math
 import numpy as np
 from tqdm import tqdm
@@ -7,29 +8,19 @@ from .vis_utils import (
   normalize_vector,
   squential_space_to_cartesian,
 )
+from emsurveil.envs import BaseOCPEnv
 
 class VisMat:
   """
   # Args: 
-
-    - shape (list[int]): [width, height, depth] of the space in voxels.
-
-    - occupacy (list[int]): 1 indicating a occupied voxel while 0 means an
-        empty one.
         
     - camera (Camera): camera settings.
 
-    - voxel_len (float): length of sides of voxels in meters.
-
     - sample_step (float): length of a sample step in voxels.
-
-    - targets (list[int]): positions of target points. Default value is
-        `None`, which means all points are targets. This input influences
-        the computation of `mask`.
 
   # Attributes:
 
-    - value (np.ndarray): a matrix of dimension num_voxel^2.
+    - value (np.ndarray): a matrix of dimension env.num_voxel^2.
 
     - mask (np.ndarray): a target mask that ignores cam-tar pairs when tar
         is not a concerning target point.
@@ -39,24 +30,27 @@ class VisMat:
 
   def __init__(
     self,
-    shape: list[int],
-    occupacy: list[int],
     camera: Camera,
-    voxel_len: float,
+    env: BaseOCPEnv,
     sample_step: float=0.2,
-    targets: list[int]=None,
   ):
-    num_voxel = shape[0] * shape[1] * shape[2]
+    if sample_step > 0.5:
+      logging.warn(
+        "Sampling step over 0.5 may result in mistaken vis_mat, "
+        f"current sample_step == {sample_step}."
+      )
+
     self.__value = self._compute_vis(
-      shape,
-      occupacy,
       camera,
-      voxel_len,
+      env,
       sample_step=sample_step,
     )
     self.__mask = np.array(
-      [[targets[i]] * num_voxel for i in range(num_voxel)]
-    ) if targets is not None else np.ones([num_voxel, num_voxel])
+      [[env.targets[i]] * env.num_voxel for i in range(env.num_voxel)]
+    ) if env.targets is not None else np.ones([
+      env.num_voxel,
+      env.num_voxel,
+    ])
 
 
   @property
@@ -74,10 +68,8 @@ class VisMat:
 
   def _compute_vis(
     self,
-    shape: list[int],
-    occupacy: list[int],
     camera: Camera,
-    voxel_len: float,
+    env: BaseOCPEnv,
     sample_step: float=0.2,
   ):
     """
@@ -101,20 +93,19 @@ class VisMat:
           considered sample points. The unit of sample_step is voxel.
     """
 
-    num_voxel = shape[0] * shape[1] * shape[2]
-    cartesian = squential_space_to_cartesian(shape)
-    vis = np.ones([num_voxel, num_voxel])
+    cartesian = squential_space_to_cartesian(env.shape)
+    vis = np.ones([env.num_voxel, env.num_voxel])
 
     # Compute angles of view from cams to targets, the first column
     # indicates horizontal angles and the second indicates vertical ones.
     for cam in tqdm(
-      range(num_voxel),
+      range(env.num_voxel),
       ascii=True,
       desc="Camera pos checking",
     ):
       if camera.dof[cam][1] == 0:
         for tar in tqdm(
-          range(num_voxel),
+          range(env.num_voxel),
           ascii=True,
           desc="Target visibility checking",
         ):
@@ -124,7 +115,7 @@ class VisMat:
       # accessible camera pos
       cam_coord = cartesian[cam]
       for tar in tqdm(
-        range(num_voxel),
+        range(env.num_voxel),
         ascii=True,
         desc="Target visibility checking",
       ):
@@ -137,7 +128,11 @@ class VisMat:
             camera.directions[cam],
             camera.horizontal_angles[cam],
             camera.vertical_angles[cam],
-          ) or not self._check_distance(diffs, voxel_len, camera.dof[cam])
+          ) or not self._check_distance(
+            diffs,
+            env.voxel_len,
+            camera.dof[cam],
+          )
         ):
           vis[tar][cam] = 0
           continue
@@ -151,7 +146,7 @@ class VisMat:
           ) > 0 or next_sample[0] - tar_coord[0] == 0
         ):
           # The target point is not sampled.
-          if self._check_obstacles(shape, occupacy, sample):
+          if self._check_obstacles(env.shape, env.occupacy, sample):
             vis[tar][cam] = 0
             break
 

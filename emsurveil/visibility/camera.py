@@ -55,6 +55,7 @@ class Camera:
       and len(clip_shape) == len(vertical_resol)
     ):
       raise ValueError("Inconsistent voxel numbers among inputs. ")
+    
     self.__directions = directions
     self.__dof = self._compute_dof(
       clip_shape,
