@@ -27,7 +27,7 @@ This directory mainly builds geatpy optimization problems.
 
 ## OCP requirements
 
-In this package, `[width, height, depth]` corresponds to `[y, z, x]` coordinates of the space. The following sheet lists all the necessary arguments to start a OCP problem:
+In this package, **`[width, height, depth]` corresponds to `[y, z, x]` coordinates of the space**. The following sheet lists all the necessary arguments to start a OCP problem:
 
 | Categories | Arguments | Definitions |
 | :---: | :---: | --- |

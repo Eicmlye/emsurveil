@@ -8,7 +8,7 @@ from .vis_utils import (
   normalize_vector,
   squential_space_to_cartesian,
 )
-from emsurveil.envs import BaseOCPEnv
+from emsurveil.envs._base_ import BaseOCPEnv
 
 class VisMat:
   """
