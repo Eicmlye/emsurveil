@@ -15,23 +15,33 @@ pip install -e . # install the project in editable mode
 
 ### `visibility/`
 
-This directory computes visibility matrix from known obstacle distribution and camera settings. 
+Visibility matrices `VisMat` are computed from environmental distribution and camera settings. 
 
 ### `envs/`
 
-This directory translates the OCP representation of the problem to a geatpy one, i.e., to an optimization problem. Envs can be considered as a interface between OCP and SCP. 
+`Environment`s collect the environmental arguments and translate them to OCP concerning values.
 
 ### `problems/`
 
-This directory mainly builds geatpy optimization problems.
+`geatpy` `Problem`s mainly build optimization problems.
 
 ## OCP requirements
 
-In this package, **`[width, height, depth]` corresponds to `[y, z, x]` coordinates of the space**. The following sheet lists all the necessary arguments to start a OCP problem:
+In this package, **`[width, height, depth]` corresponds to `[y, z, x]` coordinates of the space**. 
+```text
+                                              height
+                                    width     |
+                                         \    |
+                                          \   |
+                                           \  |
+                                            \ |
+watcher's sight     ------>                  \|_____________depth
+```
+The following sheet lists all the necessary arguments to start a OCP problem:
 
 | Categories | Arguments | Definitions |
 | :---: | :---: | --- |
-| `Camera` | `directions` | `[span, tilt]` angles of cameras, both of which taking `x` axis as $0$ rad.  |
+| `Camera` | `direction` | `[span, tilt]` angles of cameras, both of which taking `x` axis as $0$ rad.  |
 | `Camera` | `clip_shape` | `[width, height]` of clip sensors in cameras |
 | `Camera` | `focal_len` | focal lengths of cameras |
 | `Camera` | `resolution` | the `[width, height]` resolutions of images shot by cameras |

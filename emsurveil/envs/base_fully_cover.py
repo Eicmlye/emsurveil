@@ -1,11 +1,11 @@
 import numpy as np
 
-from emsurveil.envs._base_ import BaseOCPEnv
+from emsurveil.envs import BaseOCPEnv
 
 
 class BaseFullyCoverEnv(BaseOCPEnv):
   """
-  # Args:
+  Args:
   """
 
   def __init__(

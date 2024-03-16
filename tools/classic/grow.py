@@ -12,6 +12,7 @@ def parse_args():
     description="The evolution process of generic algorithm. "
   )
 
+  parser.add_argument("--config", type=str, help="Path of the configuration file.")
   parser.add_argument(
     "--out-dir",
     type=str,
