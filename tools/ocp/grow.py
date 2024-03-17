@@ -5,6 +5,7 @@ import os
 
 from emsurveil.logger import build_logger
 from emsurveil.problems._base_ import BaseOCPProblem
+from configs import Config
 
 
 def parse_args():
@@ -16,7 +17,7 @@ def parse_args():
   parser.add_argument(
     "--out-dir",
     type=str,
-    default="./emsurveil_output/",
+    default="./output/",
     help="Path to save output files."
   )
 
@@ -28,24 +29,30 @@ def main():
   args = parse_args()
   os.makedirs(args.out_dir, exist_ok=True)
 
-  EMLOG = build_logger(args.out_dir, level=logging.INFO)
+  logger = build_logger(args.out_dir, level=logging.INFO)
 
-  problem = BaseOCPProblem(args.cam_cfg, args.env_cfg, args.extra_cfg)
+  cfg = Config.fromfile(args.config)
+
+  problem = BaseOCPProblem(cfg["cameras"], cfg["env"], logger=logger)
   field = ea.crtfld(
-    args.encoding, problem.is_discrete_var, problem.ranges, problem.borders
+    cfg["encoding"], problem.is_discrete_var, problem.ranges, problem.borders
   )
-  population = ea.Population(args.encoding, field, args.population_size)
+  population = ea.Population(cfg["encoding"], field, cfg["population_size"])
 
-  algo = ea.soea_DE_best_1_bin_templet(problem, population, dirName=args.out_dir)
+  algo = ea.soea_DE_best_1_bin_templet(
+    problem,
+    population,
+    MAXGEN=cfg["total_generations"],
+    logTras=cfg["logger_cfg"]["interval"],
+    verbose=True,
+    drawing=1,
+    dirName=args.out_dir,
+  )
 
-  algo.MAXGEN = args.total_generations
   algo.mutOper.F = 0.5
-  algo.recOper.XOVR = 0.7
-  algo.logTras = 1
-  algo.verbose = True
-  algo.drawing = 1
+  algo.recOper.XOVR = cfg["crossover_prob"]
   
-  [best_individual, population] = algo.run()
+  best_individual, _ = algo.run()
   best_individual.save(args.out_dir)
 
 

@@ -13,7 +13,7 @@ pip install -e . # install the project in editable mode
 
 ## Usage
 
-### `visibility/`
+### `vis/`
 
 `Camera`s take intrinsic camera arguments and generates OCP concerning arguments of cameras.
 

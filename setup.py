@@ -15,6 +15,8 @@ setup(
     install_requires=[
       "geatpy==2.7",
       "tqdm>=4.66.2",
+      "addict>=2.4.0",
+      "yapf>=0.40.2",
     ],
     packages=find_packages(),
 

@@ -4,8 +4,8 @@ import numpy as np
 from tqdm import tqdm
 
 from emsurveil.envs import BaseOCPEnv
-from emsurveil.visibility.camera import BaseCameraCandidates
-from emsurveil.visibility.vis_mat import (
+from emsurveil.vis.camera import BaseCameraCandidates
+from emsurveil.vis.vis_mat import (
   normalize_vector,
   squential_space_to_cartesian,
 )

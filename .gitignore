@@ -1,6 +1,5 @@
 # emsurveil output
-emsurveil_example_output/
-emsurveil_output/
+*output/
 *.gif
 
 # VSCode settings

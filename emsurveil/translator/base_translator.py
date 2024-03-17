@@ -2,8 +2,8 @@ import geatpy as ea
 import numpy as np
 
 from emsurveil.envs import BaseOCPEnv
-from emsurveil.visibility.camera import BaseCameraCandidates
-from emsurveil.visibility.vis_mat import BaseVisMat
+from emsurveil.vis.camera import BaseCameraCandidates
+from emsurveil.vis.vis_mat import BaseVisMat
 
 class BaseTranslator:
   """
@@ -18,14 +18,6 @@ class BaseTranslator:
       f"Inconsistent voxel numbers among cameras ({len(cameras)}), env "
       f"({env.num_voxel}), and vis_mat ({vis_mat_shape[0] * vis_mat_shape[1]})."
     )
-
-    self.__translation = dict()
-    self.__translation["var"] = self.translate_var(cameras, **kwargs)
-
-  
-  @property
-  def translation(self):
-    return self.__translation
   
 
   def translate_var(self, cameras: BaseCameraCandidates, **kwargs):
