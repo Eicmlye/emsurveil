@@ -30,6 +30,7 @@ class BaseSingleCamera:
     resolution: list[float],
     horizontal_resol: list[float],
     vertical_resol: list[float],
+    cost: float,
   ):
     if direction is None or len(direction) < 2:
       raise ValueError("Two directional angles are required for [span, tilt].")
@@ -71,6 +72,7 @@ class BaseSingleCamera:
     )
     self.__horizontal_angle = 2 * math.atan(clip_shape[0] / focal_len / 2)
     self.__vertical_angle = 2 * math.atan(clip_shape[1] / focal_len / 2)
+    self.__cost = cost
 
 
   @property
@@ -90,6 +92,10 @@ class BaseSingleCamera:
     return self.__vertical_angle
   
   @property
+  def cost(self):
+    return self.__cost
+  
+  @property
   def is_available(self):
     """
     DoF indicates whether this position is available. If DoF == [0, 0], the camera
@@ -97,6 +103,7 @@ class BaseSingleCamera:
     """
 
     return self.__dof[1] == 0
+  
 
   def _compute_dof(
     self,

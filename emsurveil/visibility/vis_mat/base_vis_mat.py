@@ -3,7 +3,6 @@ import math
 import numpy as np
 from tqdm import tqdm
 
-from camera import BaseSingleCamera
 from emsurveil.envs import BaseOCPEnv
 from emsurveil.visibility.camera import BaseCameraCandidates
 from emsurveil.visibility.vis_mat import (
@@ -31,6 +30,8 @@ class BaseVisMat:
     env: BaseOCPEnv,
     sample_step: float=None,
   ):
+    assert len(cameras) == env.num_voxel
+
     if sample_step is None: 
       sample_step = 0.2
     elif sample_step > 0.5:

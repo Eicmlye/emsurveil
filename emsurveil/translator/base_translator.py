@@ -1,3 +1,6 @@
+import geatpy as ea
+import numpy as np
+
 from emsurveil.envs import BaseOCPEnv
 from emsurveil.visibility.camera import BaseCameraCandidates
 from emsurveil.visibility.vis_mat import BaseVisMat
@@ -8,53 +11,49 @@ class BaseTranslator:
   """
 
   def __init__(
+    self, cameras: BaseCameraCandidates, env: BaseOCPEnv, vis_mat: BaseVisMat, **kwargs
+  ):
+    vis_mat_shape = vis_mat.value.shape
+    assert len(cameras) == env.num_voxel == vis_mat_shape[0] * vis_mat_shape[1], (
+      f"Inconsistent voxel numbers among cameras ({len(cameras)}), env "
+      f"({env.num_voxel}), and vis_mat ({vis_mat_shape[0] * vis_mat_shape[1]})."
+    )
+
+    self.__translation = dict()
+    self.__translation["var"] = self.translate_var(cameras, **kwargs)
+
+  
+  @property
+  def translation(self):
+    return self.__translation
+  
+
+  def translate_var(self, cameras: BaseCameraCandidates, **kwargs):
+    is_maximize_target = [-1]
+    is_discrete_var = [0] * len(cameras)
+    lbound = [0] * len(cameras)
+    ubound = [1] * len(cameras)
+    lborder = [1] * len(cameras)
+    uborder = [1] * len(cameras)
+
+    return is_maximize_target, is_discrete_var, lbound, ubound, lborder, uborder
+  
+  def translate_aim_and_constraints(
     self,
-    cam_cfg: dict,
-    env_cfg: dict,
+    pop: ea.Population,
+    cameras: BaseCameraCandidates,
+    env: BaseOCPEnv,
+    vis_mat: BaseVisMat,
     **kwargs,
   ):
-    cam = self.build_cam(cam_cfg, **kwargs)
-    env = self.build_env(env_cfg, **kwargs)
-    vis_mat = self.build_vis_mat(cam, env, **kwargs)
+    var_list = []
+    constraint_list = []
+    for cam in range(pop.Phen.shape[1]):
+      var_list.append(pop.Phen[:, [cam]])
+    for tar in range(len(env.targets)):
+      constraint_list.append(np.sum(vis_mat.masked_value[tar]) - 1)
 
-  def build_cam(self, cam_cfg, **kwargs):
-    if (
-      not hasattr(cam_cfg, "directions")
-      or not hasattr(cam_cfg, "clip_shapes")
-      or not hasattr(cam_cfg, "focal_lens")
-      or not hasattr(cam_cfg, "resolutions")
-      or not hasattr(cam_cfg, "horizontal_resols")
-      or not hasattr(cam_cfg, "vertical_resols")
-    ):
-      raise ValueError("Missing camera settings.")
-    cam_type = getattr(cam_cfg, "type", BaseCameraCandidates)
-    cam = cam_type(
-      cam_cfg.directions,
-      cam_cfg.clip_shapes,
-      cam_cfg.focal_lens,
-      cam_cfg.resolutions,
-      cam_cfg.horizontal_resols,
-      cam_cfg.vertical_resols,
-      **kwargs,
-    )
+    aim = np.sum(np.multiply(cameras.costs, var_list))
+    constraints = np.hstack(constraint_list)
 
-    return cam
-  
-  def build_env(self, env_cfg, **kwargs):
-    if (
-      not hasattr(env_cfg, "shape")
-      or not hasattr(env_cfg, "occupacy")
-      or not hasattr(env_cfg, "voxel_len")
-      or not hasattr(env_cfg, "targets")
-    ):
-      raise ValueError("Missing environmental settings.")
-    env_type = getattr(env_cfg, "type", BaseOCPEnv)
-    env = env_type(
-      env_cfg.shape, env_cfg.occupacy, env_cfg.voxel_len, env_cfg.targets, **kwargs
-    )
-
-    return env
-  
-  def build_vis_mat(self, cam, env, **kwargs):
-    vis_mat_type = getattr(kwargs, "vis_mat_type", BaseVisMat)
-    vis_mat = vis_mat_type(cam, env, **kwargs)
+    return aim, constraints
