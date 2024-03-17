@@ -1,9 +1,9 @@
 import geatpy as ea
 import numpy as np
 
-from emsurveil.problems._base_ import BaseProblem
+from emsurveil.problems._base_ import BaseOCPProblem
 
-class ExampleProblem(BaseProblem):
+class ExampleProblem(BaseOCPProblem):
   def __init__(
     self,
     is_maximize_target: list[int],
@@ -24,7 +24,6 @@ class ExampleProblem(BaseProblem):
       name,
     )
     
-
   def aimFunc(self, pop: ea.Population):
     Vars = pop.Phen
     x1 = Vars[:, [0]]
@@ -38,3 +37,4 @@ class ExampleProblem(BaseProblem):
       x1 + 2 * x3 - 2,
       np.abs(x1 + x2 + x3 - 1),
     ])
+

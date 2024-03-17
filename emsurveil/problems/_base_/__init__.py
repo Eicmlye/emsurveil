@@ -1,5 +1,5 @@
-from .base_problem import BaseProblem
+from .base_ocp_problem import BaseOCPProblem
 
 __all__ = [
-  "BaseProblem",
+  "BaseOCPProblem",
 ]

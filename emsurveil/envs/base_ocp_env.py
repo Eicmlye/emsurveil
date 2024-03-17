@@ -25,12 +25,11 @@ class BaseOCPEnv:
     voxel_len: float,
     targets: np.ndarray=None,
   ):
-    if len(shape) != 3:
-      raise ValueError("`shape` should be [width, height, depth] of the space.")
-    if not (len(occupacy) == len(targets) == shape[0] * shape[1] * shape[2]):
-      raise ValueError("Inconsistent voxel numbers among inputs. ")
-    if voxel_len <= 0:
-      raise ValueError(f"{voxel_len} is an illegal voxel side length. ")
+    assert len(shape) == 3, "`shape` should be [width, height, depth] of the space."
+    assert (
+      len(occupacy) == len(targets) == shape[0] * shape[1] * shape[2]
+    ), "Inconsistent voxel numbers among inputs. "
+    assert voxel_len > 0, "voxel_len should be positive float. "
 
     self.__shape = shape
     self.__occupacy = occupacy
