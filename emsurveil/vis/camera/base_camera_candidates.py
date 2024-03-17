@@ -1,6 +1,6 @@
 import numpy as np
 
-from emsurveil.visibility.camera import BaseSingleCamera
+from emsurveil.vis.camera import BaseSingleCamera
 
 
 class BaseCameraCandidates:

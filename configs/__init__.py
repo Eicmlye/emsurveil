@@ -1,4 +1,4 @@
-from .config_parser import Config
+from .utils import Config
 
 __all__ = [
   "Config",
